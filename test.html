@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    />
+    <title>Upload Gambar</title>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2 class="text-center">Upload Gambar untuk Analisis Batu</h2>
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <form id="uploadForm" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="fileInput" class="form-label">Pilih Gambar</label>
+              <input
+                type="file"
+                class="form-control"
+                id="fileInput"
+                name="file"
+                accept="image/*"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+              Upload Gambar
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div id="result" class="col-md-8 mx-auto text-center"></div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("uploadForm");
+      const resultDiv = document.getElementById("result");
+      const submitBtn = document.getElementById("submitBtn");
+
+      const webSocket = new WebSocket("ws://localhost:3001");
+
+      webSocket.onopen = () => console.log("WebSocket connection established.");
+      webSocket.onclose = () => console.log("WebSocket connection closed.");
+      webSocket.onerror = (error) => console.error("WebSocket error:", error);
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault(); // Prevent page refresh
+        submitBtn.disabled = true; // Disable button during upload
+
+        const formData = new FormData(form); // Get file from form
+        try {
+          const response = await fetch("http://localhost:4000/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Upload failed.");
+          }
+
+          const apiData = await response.json(); // Get JSON response
+          console.log(apiData);
+
+          const sendData = (data) => {
+            if (webSocket.readyState === WebSocket.OPEN) {
+              webSocket.send(JSON.stringify(data));
+            } else {
+              console.error("WebSocket is not open.");
+            }
+          };
+
+          const addData = {
+            type: "add",
+            apiData,
+          };
+          sendData(addData);
+
+          // Display results on the page
+          resultDiv.innerHTML = `
+            <div class="alert alert-success">
+              <h5>Upload Berhasil!</h5>
+              <p><strong>Nama File:</strong> ${apiData.file}</p>
+              <p><strong>Waktu Upload (WIB):</strong> ${apiData.uploadTime}</p>
+              <p><strong>Volume Batu:</strong> ${apiData.data.volumeBatu}</p>
+              <p><strong>Jumlah Batu:</strong> ${apiData.data.jumlahBatu}</p>
+            </div>
+          `;
+        } catch (error) {
+          console.error("Error:", error.message);
+
+          // Display error message
+          resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+              <h5>Terjadi Kesalahan</h5>
+              <p>${error.message}</p>
+            </div>
+          `;
+        } finally {
+          submitBtn.disabled = false; // Re-enable the button
+        }
+      });
+    </script>
+  </body>
+</html>
