@@ -6,8 +6,8 @@ const app = express();
 const PORT = 3000;
 const socketServer = new WebSocketServer({ port: 3001 });
 
-// const url =
-//   "";
+const url =
+  "mongodb+srv://khoirulmalik03:bolasel123@cluster0.aipo4u8.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0";
 const client = new MongoClient(url);
 
 // Connect MongoDB client once at the start

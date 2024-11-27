@@ -54,7 +54,7 @@
 
         const formData = new FormData(form); // Get file from form
         try {
-          const response = await fetch("http://localhost:4000/api/upload", {
+          const response = await fetch("http://localhost:3000/api/upload", {
             method: "POST",
             body: formData,
           });
@@ -75,10 +75,18 @@
             }
           };
 
+          const file = apiData.file;
+          const uploadtime = apiData.uploadTime;
+          const volumebatu = apiData.data.volumeBatu;
+          const jumlahbatu = apiData.data.jumlahBatu;
           const addData = {
             type: "add",
-            apiData,
+            tanggalUpload: uploadtime,
+            volumeBatu: volumebatu,
+            jumlahBatu: jumlahbatu,
+            namaFile: file,
           };
+          console.log(addData);
           sendData(addData);
 
           // Display results on the page
