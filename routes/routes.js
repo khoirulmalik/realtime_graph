@@ -15,4 +15,8 @@ router.get("/uploadss", (req, res) => {
   res.sendFile("test.html", { root: path.join(__dirname, "../public") }); // Update path to public folder
 });
 
+router.get("/allinone", (req, res) => {
+  res.sendFile("uhuy.html", { root: path.join(__dirname, "../public") }); // Update path to public folder
+});
+
 module.exports = router;

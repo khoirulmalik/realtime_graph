@@ -2,12 +2,12 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Setup multer storage untuk menyimpan file dan memastikan folder uploads ada
+// Setup multer storage 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = "uploads/";
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir); // Membuat folder uploads jika belum ada
+      fs.mkdirSync(dir); 
       console.log("Folder 'uploads/' dibuat");
     }
     cb(null, dir);
@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter-hanya menerima gambar
+// Type Middleware
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
   if (!allowedTypes.includes(file.mimetype)) {
@@ -39,7 +39,7 @@ const upload = multer({
     fileSize: 1024 * 1024 * 5, //  5MB
   },
   fileFilter: fileFilter,
-}).single("file"); //single upload untuk field 'file'
+}).single("file"); 
 
 //error handling
 module.exports = (req, res, next) => {

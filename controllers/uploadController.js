@@ -3,9 +3,9 @@ const FormData = require("form-data");
 const axios = require("axios");
 const Upload = require("../models/uploadModel"); 
 
-// Fungsi untuk mengonversi waktu saat ini ke format WIB (Asia/Jakarta)
+// Time conversion
 function getWIBTime() {
-  const now = new Date(); // Waktu saat ini
+  const now = new Date(); 
   const options = {
     timeZone: "Asia/Jakarta",
     year: "numeric",
@@ -16,24 +16,11 @@ function getWIBTime() {
     second: "2-digit",
   };
 
-  // Menggunakan Intl.DateTimeFormat untuk memformat waktu
+  // Formatter
   const formatter = new Intl.DateTimeFormat("id-ID", options);
-  return formatter.format(now); // Mengembalikan string waktu dalam format WIB
+  return formatter.format(now); 
 }
 
-// Fungsi untuk mengonversi string WIB ke objek Date untuk MongoDB
-function parseWIBTime(dateString) {
-  const [day, month, year, hour, minute, second] = dateString
-    .replace(/,/g, "") // Hapus koma
-    .split(/[\s/:.]/); // Pisahkan berdasarkan spasi, garis miring, atau titik
-
-  // Membuat objek Date dengan zona waktu lokal
-  const date = new Date(year, month - 1, day, hour, minute, second);
-
-  // Menyesuaikan dengan UTC+7 (WIB)
-  const offset = 7 * 60 * 60 * 1000; // Offset dalam milidetik
-  return new Date(date.getTime() - offset); // Simpan sebagai UTC
-}
 
 exports.uploadImage = async (req, res) => {
   if (!req.file) {
@@ -65,19 +52,15 @@ exports.uploadImage = async (req, res) => {
       throw new Error("Volume batu yang diterima dari AI tidak valid.");
     }
 
-    const uploadTimeString = getWIBTime(); // Dapatkan waktu dalam format WIB
-    const tanggalUpload = parseWIBTime(uploadTimeString); // Konversi ke objek Date
+    const uploadTimeString = getWIBTime(); 
 
-    // Simpan informasi file dan hasil AI ke MongoDB
+    // Save result
     const uploadData = new Upload({
-      tanggalUpload: uploadTimeString, // Simpan sebagai objek Date
+      tanggalUpload: uploadTimeString, 
       volumeBatu: volumeBatu,
       jumlahBatu: jumlahBatu,
       namaFile: req.file.filename,
     });
-
-    // // Menyimpan ke MongoDB
-    // await uploadData.save();
 
     res.status(200).json({
       message: "File dan data batu berhasil disimpan",
